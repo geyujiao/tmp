@@ -17,11 +17,6 @@ type DataMessage struct {
 	Amount       string `json:"amount"`         //充值卡金额
 }
 
-type Request struct {
-	Accountid string `json:"accountid"`
-	Data      string `json:"data"`
-	Sign      string `json:"sign"`
-}
 type Response struct {
 	Code string
 	Msg  string
@@ -69,68 +64,60 @@ func getSign(data, appmd5secret string) (sign string, err error) {
 
 func Recharge(tradeOrderId, cardNo, cardPwd, amount string) (result *RechargeResult) {
 	var (
-		urlStr      = "http://47.93.136.39:8170/api/charge_add"
-		req         = Request{}
 		resp        = Response{}
 		app         = NewClient()
 		dataMessage = DataMessage{}
 		dataStr     string
-		err         error
 	)
-
-	req.Accountid = app.AppId
+	result = new(RechargeResult)
 
 	dataMessage.TradeOrderId = tradeOrderId
 	dataMessage.CardNo = cardNo
 	dataMessage.CardPwd = cardPwd
 	dataMessage.Amount = amount
-	dataStr, err = getData(dataMessage, app.AppSecret)
+	dataStr, err := getData(dataMessage, app.AppSecret)
 	if err != nil {
+		logger.Error(err.Error())
 		result.MsgType = SendFail
-		result.Msg = err.Error()
-		return
+		result.Msg = "数据加密异常"
+		return result
 	}
 
 	sign, err := getSign(dataStr, app.AppMd5Secret)
 	if err != nil {
+		logger.Error(err.Error())
 		result.MsgType = SendFail
-		result.Msg = err.Error()
-		return
+		result.Msg = "数据加密异常"
+		return result
 	}
 
-	req.Accountid = app.AppId
-	req.Data = dataStr
-	req.Sign = sign
+	app.SetUrl("http://47.93.136.39:8170/api/charge_add")
 
 	body := make(map[string]string)
-	body["accountid"] = req.Accountid
+	body["accountid"] = app.AppId
 	body["data"] = dataStr
 	body["sign"] = sign
 
 	headers := make(map[string]string)
 	headers[httplib.ResponseResultContentType] = "application/json"
 
-	err = httplib.PostForm(urlStr, &resp, body, headers)
+	err = httplib.PostForm(app.Url, &resp, body, headers)
 	if err != nil {
+		logger.Error(err.Error())
 		result.MsgType = SendFail
-		result.Msg = err.Error()
-		return
+		result.Msg = "服务器异常"
+		return result
 	}
 	if resp.Code == "0" {
-		//result.MsgType = Success
-		//result.Msg = "提交成功！"
 		logger.Info("提交成功")
 		return nil
 
 	} else if resp.Msg == "您输入的加油卡号码不存在!" {
 		result.MsgType = ServerClose
 		result.Msg = resp.Msg
-
 	} else {
 		result.MsgType = ReceFail
 		result.Msg = resp.Msg
-
 	}
-
-	return
+	return result
 }
