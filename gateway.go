@@ -6,7 +6,6 @@ import (
 
 	conf "github.com/vgmdj/tmp/config"
 	"github.com/vgmdj/tmp/controller"
-	"github.com/vgmdj/tmp/util/charge/spcard"
 	"github.com/vgmdj/tmp/util/config"
 	"github.com/vgmdj/tmp/util/mq/rabbitmq"
 )
@@ -32,7 +31,6 @@ func main() {
 	log.Println("start listen MQ ")
 	log.Println("start server listen at port", conf.Spcard.ListenPort)
 
-	spcard.Init()
 	go controller.MsgProcessing()
 
 	r := gin.Default()
