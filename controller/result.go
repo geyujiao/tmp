@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/vgmdj/utils/logger"
+	"github.com/gin-gonic/gin"
 	"github.com/vgmdj/tmp/util/mq/rabbitmq"
+	"github.com/vgmdj/utils/logger"
+	"net/http"
 )
 
 var (
@@ -25,7 +27,7 @@ type MsgResult struct {
 }
 
 //ResultStatistics 充值结果
-func ResultStatistics() {
+func ResultStatistics(c *gin.Context) {
 	result := MsgResult{
 		OrderNo: "",
 		OilCard: "",
@@ -58,6 +60,8 @@ func ResultStatistics() {
 		logger.Error(err.Error())
 		return
 	}
+
+	c.String(http.StatusOK, "ok")
 
 }
 

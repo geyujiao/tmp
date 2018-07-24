@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
 	"log"
 
 	conf "github.com/vgmdj/tmp/config"
@@ -33,10 +34,9 @@ func main() {
 
 	spcard.Init()
 	go controller.MsgProcessing()
-	go controller.ResultStatistics()
 
 	r := gin.Default()
-	r.Post("/charge/result", controller.ResultStatistics)
+	r.POST("/charge/result", controller.ResultStatistics)
 	r.Run(":9099")
 
 }
