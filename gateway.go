@@ -21,8 +21,6 @@ func main() {
 	cfg.Instance()
 
 	cfg.AddConfig("rabbitmq", &conf.Rabbitmq)
-	cfg.AddConfig("mysql", &conf.Mysql)
-	cfg.AddConfig("recharge", &conf.Spcard)
 
 	rabbitmq.InitMQ(conf.Rabbitmq.Host, conf.Rabbitmq.Port, conf.Rabbitmq.Vhost,
 		conf.Rabbitmq.UserName, conf.Rabbitmq.Password)

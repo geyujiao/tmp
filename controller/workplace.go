@@ -9,7 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/vgmdj/utils/logger"
 	"github.com/vgmdj/tmp/config"
 	"github.com/vgmdj/tmp/util/charge/proxy"
 	"github.com/vgmdj/tmp/util/mq/rabbitmq"
@@ -64,6 +63,7 @@ func MsgProcessing() {
 		log.Printf("Received a message: %s", delivery.Body)
 		order, err := sendMsgToWorkSpace(delivery.Body)
 		if err == nil {
+			delivery.Ack(false)
 			continue
 		}
 
