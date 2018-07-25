@@ -4,10 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 
-	conf "github.com/vgmdj/tmp/config"
-	"github.com/vgmdj/tmp/controller"
-	"github.com/vgmdj/tmp/util/config"
-	"github.com/vgmdj/tmp/util/mq/rabbitmq"
+	conf "github.com/geyujiao/tmp/config"
+	"github.com/geyujiao/tmp/controller"
+	"github.com/geyujiao/tmp/util/config"
+	"github.com/geyujiao/tmp/util/mq/rabbitmq"
 )
 
 func init() {
@@ -21,8 +21,6 @@ func main() {
 	cfg.Instance()
 
 	cfg.AddConfig("rabbitmq", &conf.Rabbitmq)
-	cfg.AddConfig("mysql", &conf.Mysql)
-	cfg.AddConfig("recharge", &conf.Spcard)
 
 	rabbitmq.InitMQ(conf.Rabbitmq.Host, conf.Rabbitmq.Port, conf.Rabbitmq.Vhost,
 		conf.Rabbitmq.UserName, conf.Rabbitmq.Password)

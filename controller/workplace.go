@@ -3,16 +3,14 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/geyujiao/tmp/config"
+	"github.com/geyujiao/tmp/util/charge/proxy"
+	"github.com/geyujiao/tmp/util/mq/rabbitmq"
 	"github.com/streadway/amqp"
 	"github.com/vgmdj/utils/logger"
 	"log"
 	"sync"
 	"time"
-
-	"github.com/vgmdj/utils/logger"
-	"github.com/vgmdj/tmp/config"
-	"github.com/vgmdj/tmp/util/charge/proxy"
-	"github.com/vgmdj/tmp/util/mq/rabbitmq"
 )
 
 var (
@@ -64,6 +62,7 @@ func MsgProcessing() {
 		log.Printf("Received a message: %s", delivery.Body)
 		order, err := sendMsgToWorkSpace(delivery.Body)
 		if err == nil {
+			delivery.Ack(false)
 			continue
 		}
 
@@ -71,6 +70,7 @@ func MsgProcessing() {
 
 		result := MsgResult{
 			Result:  ChargeMsgFailed,
+			OrderNo: order.OrderNo,
 			OilCard: order.OilCard,
 			Pwd:     order.ChargeCardPwd,
 			Money:   "0",

@@ -62,14 +62,14 @@ func getSign(data, appmd5secret string) (sign string, err error) {
 	return sign, nil
 }
 
-func Recharge(tradeOrderId, cardNo, cardPwd, amount string) (result *RechargeResult) {
+func Recharge(tradeOrderId, cardNo, cardPwd, amount string) error {
 	var (
 		resp        = Response{}
 		app         = NewClient()
 		dataMessage = DataMessage{}
 		dataStr     string
 	)
-	result = new(RechargeResult)
+	result := new(RechargeResult)
 
 	dataMessage.TradeOrderId = tradeOrderId
 	dataMessage.CardNo = cardNo
@@ -91,6 +91,7 @@ func Recharge(tradeOrderId, cardNo, cardPwd, amount string) (result *RechargeRes
 		return result
 	}
 
+	//http://47.93.136.39:8170/api/charge_add
 	app.SetUrl("http://47.93.136.39:8170/api/charge_add")
 
 	body := make(map[string]string)
