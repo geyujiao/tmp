@@ -12,3 +12,7 @@
 *.out
 
 /.idea
+
+gateway
+
+gateway.exe
