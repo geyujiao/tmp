@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -28,34 +27,31 @@ type MsgResult struct {
 
 //ResultStatistics 充值结果
 func ResultStatistics(c *gin.Context) {
-	result := MsgResult{
-		OrderNo: "",
-		OilCard: "",
-		Pwd:     "",
-		Money:   "",
-		Result:  ChargeMsgSuccess,
-		Message: "",
-		ErrInfo: "",
-	}
 
-	err := sendMsgToResultQue(result)
-	if err != nil {
-		logger.Error(err.Error())
+	logger.Info(c.Request.Body)
+	rechargeData := proxy.ParseData(c.Request.Body)
+	logger.Info(rechargeData)
+
+	result := MsgResult{
+		OrderNo: rechargeData.Orderid,
+		Money:   rechargeData.Amount,
+		Message: rechargeData.Msg,
+		ErrInfo: rechargeData.Msg,
+		//OilCard: "",
+		//Pwd:     "",
+	}
+	if rechargeData.Status == proxy.ResponseSuccess {
+		result.Result = ChargeMsgSuccess
+
+	} else if rechargeData.Status == proxy.ResponseFail {
+		result.Result = ChargeMsgFailed
+	} else {
+		logger.Error("invalid status")
 		return
 
 	}
 
-	result = MsgResult{
-		OrderNo: "",
-		OilCard: "",
-		Pwd:     "",
-		Money:   "",
-		Result:  ChargeMsgFailed,
-		Message: "",
-		ErrInfo: "",
-	}
-
-	err = sendMsgToResultQue(result)
+	err := sendMsgToResultQue(result)
 	if err != nil {
 		logger.Error(err.Error())
 		return
@@ -73,10 +69,10 @@ func sendMsgToResultQue(result MsgResult) (err error) {
 		return
 	}
 
-	if result.OrderNo == "" && result.OilCard == "" {
-		log.Println(result)
-		return fmt.Errorf("invalid result")
-	}
+	//if result.OrderNo == "" && result.OilCard == "" {
+	//	log.Println(result)
+	//	return fmt.Errorf("invalid result")
+	//}
 
 	err = rabbitmq.SendToMQ(resultExc, resultKey, body)
 	if err != nil {

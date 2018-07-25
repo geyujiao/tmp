@@ -3,11 +3,12 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/streadway/amqp"
+	"github.com/vgmdj/utils/logger"
 	"log"
 	"sync"
 	"time"
 
-	"github.com/streadway/amqp"
 	"github.com/vgmdj/utils/logger"
 	"github.com/vgmdj/tmp/config"
 	"github.com/vgmdj/tmp/util/charge/proxy"
