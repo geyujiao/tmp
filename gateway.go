@@ -33,6 +33,6 @@ func main() {
 
 	r := gin.Default()
 	r.POST("/charge/result", controller.ResultStatistics)
-	r.Run(":9099")
+	r.Run(":9098")
 
 }
