@@ -62,14 +62,14 @@ func getSign(data, appmd5secret string) (sign string, err error) {
 	return sign, nil
 }
 
-func Recharge(tradeOrderId, cardNo, cardPwd, amount string) (result *RechargeResult) {
+func Recharge(tradeOrderId, cardNo, cardPwd, amount string) error {
 	var (
 		resp        = Response{}
 		app         = NewClient()
 		dataMessage = DataMessage{}
 		dataStr     string
 	)
-	result = new(RechargeResult)
+	result := new(RechargeResult)
 
 	dataMessage.TradeOrderId = tradeOrderId
 	dataMessage.CardNo = cardNo
@@ -108,16 +108,14 @@ func Recharge(tradeOrderId, cardNo, cardPwd, amount string) (result *RechargeRes
 		result.Msg = "服务器异常"
 		return result
 	}
+
 	if resp.Code == "0" {
 		logger.Info("提交成功")
 		return nil
-
-	} else if resp.Msg == "您输入的加油卡号码不存在!" {
-		result.MsgType = ServerClose
-		result.Msg = resp.Msg
-	} else {
-		result.MsgType = ReceFail
-		result.Msg = resp.Msg
 	}
+
+	result.MsgType = SendFail
+	result.Msg = resp.Msg
+
 	return result
 }

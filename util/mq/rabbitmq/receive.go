@@ -31,6 +31,8 @@ func ReceiveFromMQ(exchange, key, queue string, args amqp.Table) (msgs <-chan am
 		return
 	}
 
+	ch.Qos(1, 0, true)
+
 	msgs, err = ch.Consume(
 		queue, // queue
 		queue, // consumer
@@ -46,8 +48,4 @@ func ReceiveFromMQ(exchange, key, queue string, args amqp.Table) (msgs <-chan am
 	}
 
 	return
-}
-
-func ReceiveDeadLetter() {
-
 }

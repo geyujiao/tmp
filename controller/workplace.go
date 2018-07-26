@@ -73,8 +73,8 @@ func MsgProcessing() {
 			Result:  ChargeMsgFailed,
 			OilCard: order.OilCard,
 			Pwd:     order.ChargeCardPwd,
-			Money:   "0",
-			Message: "",
+			Money:   order.Amount,
+			Message: err.Error(),
 			ErrInfo: err.Error(),
 		}
 

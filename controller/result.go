@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/vgmdj/tmp/util/charge/proxy"
 	"github.com/vgmdj/tmp/util/mq/rabbitmq"
+	"github.com/vgmdj/utils/encrypt"
 	"github.com/vgmdj/utils/logger"
 	"io"
 	"io/ioutil"
@@ -21,13 +22,14 @@ var (
 )
 
 type MsgResult struct {
-	OrderNo string
-	OilCard string
-	Pwd     string
-	Result  string
-	Money   string
-	Message string
-	ErrInfo string
+	OrderNo    string
+	OilCard    string
+	Pwd        string
+	Result     string
+	Money      string
+	OutOrderNo string
+	Message    string
+	ErrInfo    string
 }
 
 //ResultStatistics 充值结果
@@ -84,7 +86,7 @@ func parseData(body io.Reader) (result MsgResult, err error) {
 		return
 	}
 
-	//Code        string    //状态码 0
+	//Code        string  //状态码 0
 	//Status      string //订单状态
 	//Msg         string //订单状态说明
 	//Amount      string //实际金额
@@ -93,7 +95,8 @@ func parseData(body io.Reader) (result MsgResult, err error) {
 	//From_status string
 
 	tmpRes := make(map[string]string)
-	keys := []string{"code", "status", "msg", "amount", "Orderid", "outOrderNo", "from_status"}
+	sign := ""
+	keys := []string{"Orderid", "amount", "code", "from_status", "msg", "outOrderNo", "status"}
 	for _, v := range keys {
 		var (
 			value []string
@@ -105,13 +108,20 @@ func parseData(body io.Reader) (result MsgResult, err error) {
 		}
 
 		tmpRes[v] = value[0]
+		sign = fmt.Sprintf("%s%s%s", sign, v, value[0])
+	}
+
+	sign = encrypt.Md5(sign + proxy.NewClient().AppMd5Secret)
+	if sign != tmpRes["sign"] {
+		logger.Error("invalid sign ", values, sign)
 	}
 
 	result = MsgResult{
-		OrderNo: tmpRes["Orderid"],
-		Money:   tmpRes["amount"],
-		Message: tmpRes["msg"],
-		ErrInfo: tmpRes["msg"],
+		OrderNo:    tmpRes["Orderid"],
+		Money:      tmpRes["amount"],
+		Message:    tmpRes["msg"],
+		ErrInfo:    tmpRes["msg"],
+		OutOrderNo: tmpRes["outOrderNo"],
 	}
 
 	if tmpRes["status"] == proxy.ResponseSuccess {
